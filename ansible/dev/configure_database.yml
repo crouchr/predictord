@@ -1,0 +1,57 @@
+---
+- hosts: docker-dev
+  become: yes
+  vars:
+    sql_root_password: 'secretsql'
+
+  tasks:
+
+    #- name: Create metmini database
+    #  mysql_db:
+    #    name: metminidb
+    #    login_user: root
+    #    login_password: "{{ sql_root_password }}"
+    #    login_host: localhost
+    #    state: present
+
+    #- name: Copy actual_table.sql to server
+    #  template: src=../common/actual_table.sql dest=/tmp/actual_table.sql owner=vagrant group=users
+
+    - name: Copy forecasts_table.sql to server
+      template: src=../common/forecasts_table.sql dest=/tmp/forecasts_table.sql owner=vagrant group=users
+
+    #- name: Copy grant_permissions.sql to server
+    #  template: src=../common/grant_permissions.sql dest=/tmp/grant_permissions.sql owner=vagrant group=users
+
+    #- name: "Create metminidb actual table"
+    #  become: yes
+    #  shell: "mysql -u root -p{{ sql_root_password }} < /tmp/actual_table.sql"
+    #  ignore_errors: yes
+    #  failed_when: false
+
+    - name: "Create metminidb forecasts table"
+      become: yes
+      shell: "mysql -u root -p{{ sql_root_password }} < /tmp/forecasts_table.sql"
+      ignore_errors: yes
+      failed_when: false
+
+    #- name: "Grant permissions"
+    #  become: yes
+    #  shell: "mysql -u root -p{{ sql_root_password }} < /tmp/grant_permissions.sql"
+    #  ignore_errors: yes
+    #  failed_when: false
+
+    #- name: Remove the actual table sql file from the server
+    #  file:
+    #    path: /tmp/actual_table.sql
+    #    state: absent
+
+    - name: Remove the forecasts table sql file from the server
+      file:
+        path: /tmp/forecasts_table.sql
+        state: absent
+
+    #- name: Remove the grant permissions sql file from the server
+    #  file:
+    #    path: /tmp/grant_permissions.sql
+    #    state: absent
