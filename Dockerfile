@@ -13,4 +13,4 @@ COPY app/*.py /app/
 WORKDIR /app
 
 #CMD ["python3", "predictord.py"]
-CMD "tail -f /dev/null"
+CMD ["tail", "-f", "/dev/null"]
