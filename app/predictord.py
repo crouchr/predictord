@@ -32,7 +32,7 @@ def get_forecast_prereqs(location, julian_day_yesterday, forecast_hour_utc, sour
     recs_to_retrieve = 3    # number of readings to use to determine pressure trend and wind_deg
     index = [1, 2, 3]       # FIXME : calc from recs_to_retrieve
 
-    mydb, mycursor = connect_db.connect_database("metminidb")
+    mydb, mycursor = connect_db.connect_database("metmini-mysql", "metminidb")
 
     # Retrieve the FIRST set of records that are AFTER the 0900 UTC optimaum forecasting time
     sql_query = """SELECT * FROM actual WHERE location = %s and julian = %s and hour_utc >= %s and source = "OpenWeatherMap" limit %s"""
