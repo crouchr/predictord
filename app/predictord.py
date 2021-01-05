@@ -122,7 +122,8 @@ def add_forecast_to_db(julian_day, location, pressure, ptrend, wind_deg, wind_st
     utc_epoch = time.time()
     #print(utc_epoch)
 
-    mydb, mycursor = connect_db.connect_database("metminidb")
+    # FIXME : remove hardcoding
+    mydb, mycursor = connect_db.connect_database("metmini-mysql", "metminidb")
 
     ts_local = ts_funcs.epoch_to_local(utc_epoch)
     ts_utc   = ts_funcs.epoch_to_utc(utc_epoch)
