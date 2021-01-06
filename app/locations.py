@@ -5,9 +5,7 @@
 # for free tier of 1000 api calls per day I can have 6 locations
 
 locations = [
-    {"location": "Stockcross, UK", "lat": "51.41460037", "lon": "-1.37486378"},
-    {"location": "Llanfairfechen, UK", "lat": "53.2528", "lon": "-3.9751"},
-    {"location": "Yarmouth Harbour, UK", "lat": "50.7051", "lon": "-1.5027"}
+    {"location": "Stockcross, UK", "lat": "51.41460037", "lon": "-1.37486378"}
 ]
 
 # {"location": "Lymington Harbour, UK", "lat": "50.7535", "lon": "-1.5283"},
