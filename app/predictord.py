@@ -39,8 +39,8 @@ def get_forecast_prereqs(location, julian_day, forecast_hour_utc, met_source):
 
     # reasoning - look at last hour for trends = 6 samples
 
-    recs_to_retrieve = 6                 # number of readings to use to determine pressure trend and wind_deg
-    index = [1, 2, 3, 4, 5, 6]           # FIXME : calc from recs_to_retrieve
+    recs_to_retrieve = 4                # number of readings to use to determine pressure trend and wind_deg
+    index = [1, 2, 3, 4]           # FIXME : calc from recs_to_retrieve
     #recs_to_retrieve = 2
     #index = [1, 2]
 
@@ -52,7 +52,7 @@ def get_forecast_prereqs(location, julian_day, forecast_hour_utc, met_source):
     # Retrieve the FIRST set of records that are AFTER the 0900 UTC optimum forecasting time
     sql_query = """SELECT * FROM actual WHERE location = %s and julian = %s and hour_utc = %s and source = %s limit %s"""
     #sql_query = """SELECT * FROM actual WHERE location = %s and julian = %s and source = %s limit %s"""
-
+    print('Retrieve Actual Table records for julian_day=' + julian_day.__str__() + ', forecast_hour_utc=' + forecast_hour_utc.__str__() + ', met_source=' + met_source)
     mycursor.execute(sql_query, (location, julian_day, forecast_hour_utc, met_source, recs_to_retrieve))
     records = mycursor.fetchall()
 
@@ -183,8 +183,6 @@ def add_forecast_to_db(julian_day, location, lat, lon, pressure, ptrend, wind_de
     :param forecast_text:
     :return:
     """
-
-    return  # do not modify forecasts yet
 
     utc_epoch = time.time()
     #print(utc_epoch)
