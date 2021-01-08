@@ -1,7 +1,5 @@
-# fixme : note host is localhost
 import mysql.connector
 
-# host="erminserver.localdomain",
 def connect_database(mysql_host, db_name):
     """
 

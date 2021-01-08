@@ -15,6 +15,7 @@ pytest = "==6.2.1"
 mysql-connector-python = "==8.0.22"
 metfuncs = {version="1.0.6", index="ermin"}
 numpy = "==1.19.4"
+tweepy = "==3.10.0"
 
 [dev-packages]
 

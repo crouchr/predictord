@@ -12,5 +12,5 @@ RUN mkdir /app
 COPY app/*.py /app/
 WORKDIR /app
 
-#CMD ["python3", "predictord.py"]
-CMD ["tail", "-f", "/dev/null"]
+CMD ["python3", "predictord.py"]
+#CMD ["tail", "-f", "/dev/null"]
