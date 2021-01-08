@@ -366,7 +366,11 @@ def update_forecasts(julian_day, forecast_hour_utc, met_source):
             # only Tweet out my local forecast
             if place['location'] in ["Stockcross, UK", "Lymington Harbour, UK", "Yarmouth Harbour, UK", "Cowes, UK", "Portsmouth, UK"]:
                 tweet = '12-24 hour forecast for ' + place['location'] + ' is *** ' + hughes38_forecast_text.lower() + ' ***' + \
-                    ', current conditions=' + last_weather_description.__str__() + ', last_record_id=' + last_record_id.__str__() + \
+                    ', current conditions=' + last_weather_description.__str__() + \
+                    ', temp_avg=' + temp_avg.__str__() + \
+                    ', wind_strength=F' + wind_strength.__str__() + \
+                    ', rain_avg=' + rain_avg.__str__() + \
+                    ', last_record_id=' + last_record_id.__str__() + \
                     ', condition_code=' + hughes38_forecast_id.__str__() + ', sender=mrdell'
 
                 print('=> Tweet = ' + tweet)
