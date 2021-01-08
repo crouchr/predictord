@@ -21,6 +21,7 @@ import predictord_funcs
 import twitter
 import wait_time
 
+# This is heavily modified from the master
 def get_forecast_prereqs(location, julian_day, forecast_hour_utc, met_source):
     """
     Retrieve the required values needed to make a forecast from the database
@@ -40,16 +41,16 @@ def get_forecast_prereqs(location, julian_day, forecast_hour_utc, met_source):
 
     recs_to_retrieve = 6                 # number of readings to use to determine pressure trend and wind_deg
     index = [1, 2, 3, 4, 5, 6]           # FIXME : calc from recs_to_retrieve
-    recs_to_retrieve = 2
-    index = [1, 2]
+    #recs_to_retrieve = 2
+    #index = [1, 2]
 
     my_dbase="172.27.0.2"   # FIXME : 1 debugging only
-    my_dbase = "192.168.1.15"
+    my_dbase = "192.168.1.180"
     mydb, mycursor = connect_db.connect_database(my_dbase, "metminidb")
     #mydb, mycursor = connect_db.connect_database("metmini-mysql", "metminidb")
 
     # Retrieve the FIRST set of records that are AFTER the 0900 UTC optimum forecasting time
-    sql_query = """SELECT * FROM actual WHERE location = %s and julian = %s and hour_utc = %s and met_source = %s limit %s"""
+    sql_query = """SELECT * FROM actual WHERE location = %s and julian = %s and hour_utc = %s and source = %s limit %s"""
     #sql_query = """SELECT * FROM actual WHERE location = %s and julian = %s and source = %s limit %s"""
 
     mycursor.execute(sql_query, (location, julian_day, forecast_hour_utc, met_source, recs_to_retrieve))
@@ -64,12 +65,12 @@ def get_forecast_prereqs(location, julian_day, forecast_hour_utc, met_source):
         pressure_values.append(row[8])
         wind_speed_values.append(row[9])
         wind_deg_values.append(row[10])
-        wind_strength_values.append(row[13])
-        temp_values.append(row[15])
-        dew_point_values.append(row[17])
-        humidity_values.append(row[19])
-        rain_values.append(row[21])
-        snow_values.append(row[22])
+        wind_strength_values.append(row[12])
+        temp_values.append(row[14])
+        dew_point_values.append(row[16])
+        humidity_values.append(row[18])
+        rain_values.append(row[20])
+        snow_values.append(row[21])
 
     last_record_id = row[0]     # id of the last record to be used
     last_main = row[6]
@@ -77,8 +78,8 @@ def get_forecast_prereqs(location, julian_day, forecast_hour_utc, met_source):
     last_weather_description = last_main + " (" + last_description + ")"
     last_record_timestamp = row[2]          # ts_utc
 
-    lat = row[25]
-    lon = row[26]
+    lat = row[24]
+    lon = row[25]
 
     trend_str, slope = trend.trendline(index, pressure_values)
     wind_deg_avg = int(sum(wind_deg_values)) / len(wind_deg_values)
@@ -182,12 +183,15 @@ def add_forecast_to_db(julian_day, location, lat, lon, pressure, ptrend, wind_de
     :param forecast_text:
     :return:
     """
+
+    return  # do not modify forecasts yet
+
     utc_epoch = time.time()
     #print(utc_epoch)
 
     # FIXME : remove hardcoding
     my_dbase = "172.27.0.2" # FIXME 2
-    my_dbase = "192.168.1.15"  # FIXME 2
+    my_dbase = "192.168.1.180"  # FIXME 2
     mydb, mycursor = connect_db.connect_database(my_dbase, "metminidb")
     #mydb, mycursor = connect_db.connect_database("metmini-mysql", "metminidb")
 
@@ -362,10 +366,14 @@ def update_forecasts(julian_day, forecast_hour_utc, met_source):
             add_forecast_to_db(julian_day, place['location'], lat, lon, pressure, ptrend, wind_deg, wind_quadrant, wind_strength, temp_avg, rain_avg, snow_avg, humidity_avg, dew_point_avg, slope, met_source, last_weather_description, last_record_id, hughes38_forecast_text, hughes38_forecast_id, zambretti_forecast_text, zambretti_forecast_id, metmini_forecast_text, metmini_forecast_id, api_forecast_text, last_record_timestamp, container_version)
 
             # only Tweet out my local forecast
-            if place['location'] == "Stockcross, UK":
-                tweet = '12-14 hour forecast for ' + place['location'] + ' is ' + hughes38_forecast_text.lower()
-                print('Tweet = ' + tweet)
+            if place['location'] in ["Stockcross, UK", "Lymington Harbour, UK", "Yarmouth Harbour, UK", "Cowes, UK", "Portsmouth, UK"]:
+                tweet = '12-24 hour forecast for ' + place['location'] + ' is *** ' + hughes38_forecast_text.lower() + ' ***' + \
+                    ', current conditions=' + last_weather_description.__str__() + ', last_record_id=' + last_record_id.__str__() + \
+                    ', condition_code=' + hughes38_forecast_id.__str__()
+
+                print('=> Tweet = ' + tweet)
                 twitter.send_tweet(tweet, lat, lon)
+                time.sleep(5)       # rate-limit
 
     except Exception as e:
         print("update_forecasts() : error : " + e.__str__())
@@ -373,7 +381,7 @@ def update_forecasts(julian_day, forecast_hour_utc, met_source):
 
 def main():
     try:
-        met_source = "OpenWeatherMap"   # the only source of weather info at the moment
+        source = "OpenWeatherMap"   # the only source of weather info at the moment
         container_version = predictord_funcs.get_version()
 
         print('predictord started, container_version=' + container_version)
@@ -385,7 +393,7 @@ def main():
             now_utc_hour = utc_time_str.split(" ")[1]
             forecast_utc_hour = int(now_utc_hour.split(':')[0]) - 1
             print('forecast_utc_hour = ' + forecast_utc_hour.__str__())
-            update_forecasts(julian_day, forecast_utc_hour, met_source)
+            update_forecasts(julian_day, forecast_utc_hour, source)
             sleep_secs = wait_time.calc_wait_time(now_utc_hour)
             print('sleeping for ' + sleep_secs.__str__() + ' secs...')
             time.sleep(sleep_secs)
