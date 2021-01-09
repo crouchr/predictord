@@ -372,9 +372,8 @@ def update_forecasts(julian_day, forecast_hour_utc, met_source):
                     ', rain_avg=' + rain_avg.__str__() + \
                     ', last_record_id=' + last_record_id.__str__() + \
                     ', condition_code=' + hughes38_forecast_id.__str__() + ', sender=mrdell'
-
-                print('=> Tweet = ' + tweet)
-                twitter.send_tweet(tweet, lat, lon)
+                tweet_location = place['location'].split(',')[0].lower()
+                twitter.send_tweet(tweet, lat, lon, hashtags=['metminiwx', tweet_location])
                 time.sleep(5)       # rate-limit
 
     except Exception as e:

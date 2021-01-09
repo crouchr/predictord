@@ -12,12 +12,14 @@ ACCESS_TOKEN_SECRET   = 'ZmtLBKNHVlnzImahZbMUgegz0PBM9st1fx7FIngDA'
 
 
 # FIXME : add lat and lon to the tweet in the future
-def send_tweet(tweet, lat, lon):
+def send_tweet(tweet, lat, lon, hashtags=None):
     """
 
     :param tweet:
     :return:
     """
+    hashtag_str = ''
+
     # Authenticate to Twitter
     auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
     auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
@@ -27,11 +29,16 @@ def send_tweet(tweet, lat, lon):
 
     # Create a tweet
     ts = time.ctime()
-
     tweet_full = ts + " : " + tweet
-    status = api.update_status(tweet_full)
-    # status = 1
-    # print(tweet)
+    if hashtags:
+        for hashtag in hashtags:
+            hashtag_str += '#' + hashtag + ' '
+        print(hashtag_str)
+        tweet_full = tweet_full + ' ' + hashtag_str
+
+    # Send tweet
+    print('send_tweet() : ' + tweet_full)
+    status = api.update_status(tweet_full, lat=lat, long=lon)
 
     return status
 

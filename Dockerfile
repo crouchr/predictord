@@ -2,7 +2,7 @@ FROM python:3.8.5-buster
 LABEL author="Richard Crouch"
 LABEL description="Weather Predictor daemon"
 
-# trying to get logging unbuffered
+# generate logs in unbuffered mode
 ENV PYTHONUNBUFFERED=0
 
 # Install Python dependencies
