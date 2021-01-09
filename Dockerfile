@@ -2,6 +2,9 @@ FROM python:3.8.5-buster
 LABEL author="Richard Crouch"
 LABEL description="Weather Predictor daemon"
 
+# trying to get logging unbuffered
+ENV PYTHONUNBUFFERED=0
+
 # Install Python dependencies
 RUN pip3 install pipenv
 COPY Pipfile* ./

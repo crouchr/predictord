@@ -387,6 +387,7 @@ def main():
         container_version = predictord_funcs.get_version()
 
         print('predictord started, container_version=' + container_version)
+        print("\n")         # force buffer flush ?
 
         while True:
             now_utc = time.time()
