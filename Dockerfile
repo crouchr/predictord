@@ -12,5 +12,6 @@ RUN mkdir /app
 COPY app/*.py /app/
 WORKDIR /app
 
-CMD ["python3", "predictord.py"]
+# run Python unbuffered so the logs are flushed
+CMD ["python3", "-u", "predictord.py"]
 #CMD ["tail", "-f", "/dev/null"]

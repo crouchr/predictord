@@ -30,9 +30,13 @@ def send_tweet(tweet, lat, lon):
 
     tweet_full = ts + " : " + tweet
     status = api.update_status(tweet_full)
+    # status = 1
+    # print(tweet)
+
     return status
 
 
+# basic test script - not used otherwise
 def main():
     tweet = "The weather is lovely"
     lat = 0.0
