@@ -17,7 +17,8 @@ while True:
         print("failed to grab frame")
         break
 
-    img_name = "../images/metminiwx_sky_image_" + time.ctime()  + '.png'
+    #img_name = "../images/metminiwx_sky_image_" + time.ctime()  + '.png'
+    img_name = "metminiwx_sky_image_" + time.ctime()  + '.png'
     img_name = img_name.replace('  ', ' ')
     img_name = img_name.replace(' ', '_')
     img_name = img_name.replace(':', '_')
