@@ -7,6 +7,8 @@ LABEL description="Weather Predictor daemon"
 # generate logs in unbuffered mode
 ENV PYTHONUNBUFFERED=0
 
+
+
 # install opencv
 RUN apt -y update
 RUN apt -y install python3-opencv
@@ -16,8 +18,11 @@ RUN pip3 install pipenv
 COPY Pipfile* ./
 RUN pipenv install --system --deploy
 
-# Copy application and files
 RUN mkdir /app
+# FIXME : replace this with volume
+RUN mkdir /app/images
+
+# Copy application and files
 COPY app/*.py /app/
 WORKDIR /app
 
