@@ -20,6 +20,7 @@ import julian
 import predictord_funcs
 import twitter
 import wait_time
+import take_sky_picture
 
 # This is heavily modified from the master
 def get_forecast_prereqs(location, julian_day, forecast_hour_utc, met_source):
@@ -172,7 +173,7 @@ def calc_forecast_time_epoch(forecast_hour_utc):
 #     return
 
 
-def add_forecast_to_db(julian_day, location, lat, lon, pressure, ptrend, wind_deg, wind_quadrant, wind_strength, temp_avg, rain_avg, snow_avg, humidity_avg, dew_point_avg, slope, met_source, last_weather_description, last_record_id, hughes38_forecast_text, hughes38_forecast_id, zambretti_forecast_text, zambretti_forecast_id, metmini_forecast_text, metmini_forecast_id, api_forecast_text, last_record_timestamp, container_version):
+def add_forecast_to_db(julian_day, location, lat, lon, pressure, ptrend, wind_deg, wind_quadrant, wind_strength, temp_avg, rain_avg, snow_avg, humidity_avg, dew_point_avg, slope, met_source, last_weather_description, last_record_id, hughes38_forecast_text, hughes38_forecast_id, zambretti_forecast_text, zambretti_forecast_id, metmini_forecast_text, metmini_forecast_id, api_forecast_text, last_record_timestamp, sky_picture_filename, container_version):
     """
     :param julian_day: When the forecast was made for
     :param pressure:
@@ -188,9 +189,10 @@ def add_forecast_to_db(julian_day, location, lat, lon, pressure, ptrend, wind_de
     #print(utc_epoch)
 
     # FIXME : remove hardcoding
-    my_dbase = "172.27.0.2" # FIXME 2
-    my_dbase = "192.168.1.180"  # FIXME 2
-    mydb, mycursor = connect_db.connect_database(my_dbase, "metminidb")
+    my_dbase = "172.27.0.2"         # FIXME 2
+    my_dbase = "192.168.1.180"      # FIXME 2
+    my_dbase = "192.168.1.15"      # FIXME 2
+    mydb, mycursor = connect_db.connect_database(my_dbase, "metminidbflux")
     #mydb, mycursor = connect_db.connect_database("metmini-mysql", "metminidb")
 
     # Not implemented yet
@@ -228,6 +230,7 @@ def add_forecast_to_db(julian_day, location, lat, lon, pressure, ptrend, wind_de
           "last_weather_condition_code, " \
           "last_record_id, " \
           "last_record_timestamp, " \
+          "sky_picture_filename, " \
           "hughes38_forecast_text, " \
           "hughes38_forecast_id, " \
           "hughes38_condition_code, " \
@@ -240,7 +243,7 @@ def add_forecast_to_db(julian_day, location, lat, lon, pressure, ptrend, wind_de
           "api_condition_code, " \
           "container_version" \
           ") " \
-          "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+          "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
     val = (ts_local,
            ts_utc,
@@ -265,6 +268,7 @@ def add_forecast_to_db(julian_day, location, lat, lon, pressure, ptrend, wind_de
            last_weather_condition_code,
            last_record_id,
            last_record_timestamp,
+           sky_picture_filename,
            hughes38_forecast_text,
            hughes38_forecast_id,
            hughes38_condition_code,
@@ -287,7 +291,7 @@ def add_forecast_to_db(julian_day, location, lat, lon, pressure, ptrend, wind_de
 
 # ---------------------------------------------------
 
-def update_forecasts(julian_day, forecast_hour_utc, met_source):
+def update_forecasts(julian_day, forecast_hour_utc, met_source, forecast_phase):
     query = {}
     container_version = predictord_funcs.get_version()
 
@@ -361,20 +365,31 @@ def update_forecasts(julian_day, forecast_hour_utc, met_source):
             #print(full_forecast_txt)
             #print("------------------------------------------------")
 
-            add_forecast_to_db(julian_day, place['location'], lat, lon, pressure, ptrend, wind_deg, wind_quadrant, wind_strength, temp_avg, rain_avg, snow_avg, humidity_avg, dew_point_avg, slope, met_source, last_weather_description, last_record_id, hughes38_forecast_text, hughes38_forecast_id, zambretti_forecast_text, zambretti_forecast_id, metmini_forecast_text, metmini_forecast_id, api_forecast_text, last_record_timestamp, container_version)
+            # take picture of sky using webcam
+            if place['location'] == 'Stockcross, UK':
+                sky_picture_filename = take_sky_picture.create_sky_picture_filename()
+                flag = take_sky_picture.take_picture(sky_picture_filename)
+                print('sky_picture_filename=' + sky_picture_filename)
+            else:
+                sky_picture_filename="None"
 
-            # only Tweet out my local forecast
-            if place['location'] in ["Stockcross, UK", "Lymington Harbour, UK", "Yarmouth Harbour, UK", "Cowes, UK", "Portsmouth, UK"]:
-                tweet = '12-24 hour forecast for ' + place['location'] + ' is *** ' + hughes38_forecast_text.lower() + ' ***' + \
-                    ', current conditions=' + last_weather_description.__str__() + \
-                    ', temp_avg=' + temp_avg.__str__() + \
-                    ', wind_strength=F' + wind_strength.__str__() + \
-                    ', rain_avg=' + rain_avg.__str__() + \
-                    ', last_record_id=' + last_record_id.__str__() + \
-                    ', condition_code=' + hughes38_forecast_id.__str__() + ', sender=mrdell'
-                tweet_location = place['location'].split(',')[0].lower()
-                twitter.send_tweet(tweet, lat, lon, hashtags=['metminiwx', tweet_location])
-                time.sleep(5)       # rate-limit
+            add_forecast_to_db(julian_day, place['location'], lat, lon, pressure, ptrend, wind_deg, wind_quadrant, wind_strength, temp_avg, rain_avg, snow_avg, humidity_avg, dew_point_avg, slope, met_source, last_weather_description, last_record_id, hughes38_forecast_text, hughes38_forecast_id, zambretti_forecast_text, zambretti_forecast_id, metmini_forecast_text, metmini_forecast_id, api_forecast_text, last_record_timestamp, sky_picture_filename, container_version)
+
+            # only Tweet out my local forecast "Stockcross, UK",
+            if place['location'] in ["Lymington Harbour, UK", "Yarmouth Harbour, UK", "Cowes, UK", "Portsmouth, UK"]:
+                tweet = forecast_phase + ' forecast for next 12-24 hours for ' + place['location'] + ' is *** ' + hughes38_forecast_text.lower() + ' ***' + \
+                    ', current=' + last_weather_description.__str__() + \
+                    ', temp=' + temp_avg.__str__() + 'C'\
+                    ', wind=F' + wind_strength.__str__() + \
+                    ', rain=' + rain_avg.__str__() + 'mm/hr'
+                    #', last_record_id=' + last_record_id.__str__()
+                    #', condition_code=' + hughes38_forecast_id.__str__() + ', sender=mrdell'
+                tweet_location = place['location'].split(',')[0].lower()    # bug for lymington harbour and yarmouth harbour
+                tweet_truncated = tweet[0:250]
+                print('tweet length=' + len(tweet_truncated).__str__())
+                twitter.send_tweet(tweet_truncated , hashtags=['metminiwx', tweet_location], image_pathname=sky_picture_filename)
+
+                time.sleep(60)       # rate-limit code': 326, 'message': 'To protect our users from spam and other malicious activity, this account is temporarily locked.
 
     except Exception as e:
         print("update_forecasts() : error : " + e.__str__())
@@ -387,18 +402,29 @@ def main():
 
         print('predictord started, container_version=' + container_version)
         print("\n")         # force buffer flush ?
+        forecast_sequence = ['Sunrise', 'Morning', 'Noon', 'Afternoon', 'Evening', 'Sunset']
 
         while True:
-            now_utc = time.time()
-            utc_time_str = ts_funcs.epoch_to_utc(now_utc)
-            julian_day = julian.get_julian_date(utc_time_str)
-            now_utc_hour = utc_time_str.split(" ")[1]
-            forecast_utc_hour = int(now_utc_hour.split(':')[0]) - 1
-            print('forecast_utc_hour = ' + forecast_utc_hour.__str__())
-            update_forecasts(julian_day, forecast_utc_hour, source)
-            sleep_secs = wait_time.calc_wait_time(now_utc_hour)
-            print('sleeping for ' + sleep_secs.__str__() + ' secs...')
-            time.sleep(sleep_secs)
+            for forecast_phase in forecast_sequence:
+                print("\n----------")
+                print(time.ctime() + ' forecast_phase=' + forecast_phase)
+                secs_to_wait, hours_to_wait = wait_time.calc_wait_time(forecast_phase)
+                print('sleeping for ' + secs_to_wait.__str__() + ' secs...')
+                print('sleeping for ' + hours_to_wait.__str__() + ' hours...')
+                #time.sleep(secs_to_wait)
+                time.sleep(3)
+
+                now_utc = time.time()
+                utc_time_str = ts_funcs.epoch_to_utc(now_utc)
+                julian_day = julian.get_julian_date(utc_time_str)
+                now_utc_hour = utc_time_str.split(" ")[1]
+                forecast_utc_hour = int(now_utc_hour.split(':')[0]) - 1
+                print('forecast_utc_hour = ' + forecast_utc_hour.__str__())
+                update_forecasts(julian_day, forecast_utc_hour, source, forecast_phase)
+
+                # sleep_secs = wait_time.calc_wait_time(now_utc_hour)
+                # print('sleeping for ' + sleep_secs.__str__() + ' secs...')
+                # time.sleep(sleep_secs)
 
     except Exception as e:
         print("main() : error : " + e.__str__())
