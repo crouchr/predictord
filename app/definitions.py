@@ -4,4 +4,7 @@
 #endpoint_base = 'http://172.27.0.2:9501'
 
 # Option2 - when using container
-endpoint_base = 'http://forecaster-service:9501'
+#endpoint_base = 'http://forecaster-service:9501'
+
+# Option2 - when using xw6600
+endpoint_base = 'http://localhost:9501'
