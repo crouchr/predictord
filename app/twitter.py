@@ -33,7 +33,7 @@ def send_tweet(tweet_text, hashtags=None, image_pathname=None):
     if hashtags:
         for hashtag in hashtags:
             hashtag_str += '#' + hashtag + ' '
-        print(hashtag_str)
+        #print(hashtag_str)
         tweet_full = tweet_full + ' ' + hashtag_str
 
     # Send tweet
