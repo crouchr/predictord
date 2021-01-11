@@ -1,7 +1,6 @@
 # https://realpython.com/python-time-module/
 # https://www.epochconverter.com/   - use this online tool to convert to/from epoch in a web service
 # timedatectl - run on CentOS7 to see UTC and local time and TZ settings
-# triggered by cron to run once a day
 
 from datetime import datetime
 import time
@@ -144,35 +143,6 @@ def calc_forecast_time_epoch(forecast_hour_utc):
     return forecast_ts_utc
 
 
-# def sleep_till_forecast_time(utc_hour_required, utc_minute_required):
-#     """
-#     Sleep until 0900 UTC
-#     """
-#     sleep_period = 60
-#
-#     while True:
-#         print('-----')
-#         now = time.time()
-#         utc_now = datetime.utcnow()
-#         print("Local time : " + time.ctime())
-#         #print(datetime.timestamp(utc_now))
-#         utc_hour   = utc_now.hour
-#         utc_minute = utc_now.minute
-#         utc_second = utc_now.second
-#         print("UTC hour   : " + utc_hour.__str__())
-#         print("UTC minute : " + utc_minute.__str__())
-#         print("UTC second : " + utc_second.__str__())
-#
-#         if utc_hour >= utc_hour_required and utc_minute >= utc_minute_required:
-#             return
-#
-#         msg = "Waiting for hour>=" + utc_hour_required.__str__() + ", minute>=" + utc_minute_required.__str__() + " ..."
-#         print(msg)
-#         time.sleep(sleep_period)
-#
-#     return
-
-
 def add_forecast_to_db(julian_day, location, lat, lon, pressure, ptrend, wind_deg, wind_quadrant, wind_strength, temp_avg, rain_avg, snow_avg, humidity_avg, dew_point_avg, slope, met_source, last_weather_description, last_record_id, hughes38_forecast_text, hughes38_forecast_id, zambretti_forecast_text, zambretti_forecast_id, metmini_forecast_text, metmini_forecast_id, api_forecast_text, last_record_timestamp, sky_picture_filename, container_version):
     """
     :param julian_day: When the forecast was made for
@@ -297,7 +267,6 @@ def update_forecasts(julian_day, forecast_hour_utc, met_source, forecast_phase):
 
     try:
         for place in locations.locations:
-            #print("===========================================================")
             print("\nLocation : " + place['location'])
 
             lat, lon, pressure, ptrend, wind_deg, wind_quadrant, wind_strength, temp_avg, rain_avg, snow_avg, humidity_avg, dew_point_avg, slope , last_weather_description, last_record_id , last_record_timestamp = \
@@ -361,10 +330,6 @@ def update_forecasts(julian_day, forecast_hour_utc, met_source, forecast_phase):
             full_forecast_txt += ", last_weather_description=" + last_weather_description.__str__()
             full_forecast_txt += "]"
 
-            #print("------------------------------------------------")
-            #print(full_forecast_txt)
-            #print("------------------------------------------------")
-
             # take picture of sky using webcam
             if place['location'] == 'Stockcross, UK':
                 sky_picture_filename = webcam_capture.create_media_filename('image')
@@ -414,7 +379,6 @@ def main():
                 print('sleeping for ' + mins_to_wait.__str__() + ' mins...')
                 print('sleeping for ' + hours_to_wait.__str__() + ' hours...')
                 time.sleep(secs_to_wait)
-                #time.sleep(3)
 
                 print('woke up at : ' + time.ctime())
                 now_utc = time.time()
@@ -424,10 +388,6 @@ def main():
                 forecast_utc_hour = int(now_utc_hour.split(':')[0]) - 1
                 print('forecast_utc_hour = ' + forecast_utc_hour.__str__())
                 update_forecasts(julian_day, forecast_utc_hour, source, forecast_phase)
-
-                # sleep_secs = wait_time.calc_wait_time(now_utc_hour)
-                # print('sleeping for ' + sleep_secs.__str__() + ' secs...')
-                # time.sleep(sleep_secs)
 
     except Exception as e:
         print("main() : error : " + e.__str__())

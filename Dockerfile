@@ -5,9 +5,7 @@ LABEL author="Richard Crouch"
 LABEL description="Weather Predictor daemon"
 
 # generate logs in unbuffered mode
-ENV PYTHONUNBUFFERED=0
-
-
+ENV PYTHONUNBUFFERED=1
 
 # install opencv
 RUN apt -y update
@@ -27,5 +25,5 @@ COPY app/*.py /app/
 WORKDIR /app
 
 # run Python unbuffered so the logs are flushed
-#CMD ["python3", "-u", "predictord.py"]
-CMD ["tail", "-f", "/dev/null"]
+CMD ["python3", "-u", "predictord.py"]
+#CMD ["tail", "-f", "/dev/null"]
