@@ -41,7 +41,7 @@ def send_tweet(tweet_text, hashtags=None, image_pathname=None):
     # status = api.update_status(tweet_full, lat=lat, long=lon)
 
     # send Tweet
-    if image_pathname is "None":
+    if image_pathname == "None":
         api.update_status(status=tweet_full)
     else:
         api.update_with_media(image_pathname, status=tweet_full)
