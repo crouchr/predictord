@@ -376,8 +376,9 @@ def update_forecasts(julian_day, forecast_hour_utc, met_source, forecast_phase):
             add_forecast_to_db(julian_day, place['location'], lat, lon, pressure, ptrend, wind_deg, wind_quadrant, wind_strength, temp_avg, rain_avg, snow_avg, humidity_avg, dew_point_avg, slope, met_source, last_weather_description, last_record_id, hughes38_forecast_text, hughes38_forecast_id, zambretti_forecast_text, zambretti_forecast_id, metmini_forecast_text, metmini_forecast_id, api_forecast_text, last_record_timestamp, sky_picture_filename, container_version)
 
             # only Tweet out my local forecast "Stockcross, UK",
-            if place['location'] in ["Stockcross, UK", "Lymington Harbour, UK", "Yarmouth Harbour, UK", "Cowes, UK", "Portsmouth, UK"]:
-                tweet = forecast_phase + ' forecast for next 12-24 hours for ' + place['location'] + ' is *** ' + hughes38_forecast_text.lower() + ' ***' + \
+            # ["Stockcross, UK", "Lymington Harbour, UK", "Yarmouth Harbour, UK", "Cowes, UK", "Portsmouth, UK"]:
+            if place['location'] in ["Stockcross, UK"]:
+                tweet = forecast_phase + ' forecast for ' + place['location'] + ' is *** ' + hughes38_forecast_text.lower() + ' ***' + \
                     ', current=' + last_weather_description.__str__() + \
                     ', temp=' + temp_avg.__str__() + 'C'\
                     ', wind=F' + wind_strength.__str__() + \
