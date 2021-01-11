@@ -388,7 +388,7 @@ def update_forecasts(julian_day, forecast_hour_utc, met_source, forecast_phase):
                 tweet_truncated = tweet[0:250]
                 print('tweet length=' + len(tweet_truncated).__str__())
                 twitter.send_tweet(tweet_truncated , hashtags=['metminiwx', tweet_location], image_pathname=sky_picture_filename)
-                print('update_forecasts() : sleeping for 60 seconds')
+                print('update_forecasts() : sleeping for 120 seconds')
                 time.sleep(120)       # rate-limit code': 326, 'message': 'To protect our users from spam and other malicious activity, this account is temporarily locked.
 
     except Exception as e:
