@@ -17,6 +17,10 @@ metfuncs = {version="1.0.6", index="ermin"}
 numpy = "==1.19.4"
 tweepy = "==3.10.0"
 opencv-python = "==4.5.1.48"
+twython = "==3.8.2"
+imageio = "==2.9.0"
+imageio-ffmpeg = "==0.4.3"
+pygifsicle = "==1.0.2"
 
 [dev-packages]
 

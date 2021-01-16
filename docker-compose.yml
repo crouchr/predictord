@@ -1,0 +1,17 @@
+# need to add --device/video0
+version: "3.5"
+
+services:
+  predictord:
+    container_name: predictord
+    image: registry:5000/predictord:1.0.6
+    environment:
+      STAGE: DEV
+      VERSION: "1.0.6"
+    depends_on:
+      - metmini-mysql
+      - forecaster-service
+    networks:
+      - junk-net
+
+
