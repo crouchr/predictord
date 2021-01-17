@@ -21,6 +21,7 @@ import wait_time
 import webcam_capture
 import dbase_funcs
 import gif_funcs
+
 #
 # FIXME : something is wrong here but go with it
 # use forecast_hour_utc = 10 to get it to work for now

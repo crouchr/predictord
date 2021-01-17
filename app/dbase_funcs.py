@@ -45,7 +45,6 @@ def add_forecast_to_db(julian_day, location, lat, lon, pressure, ptrend, wind_de
     # FIXME : remove hardcoding
     my_dbase = "172.27.0.2"         # FIXME 2
     my_dbase = "192.168.1.180"      # FIXME 2
-    my_dbase = "192.168.1.15"      # FIXME 2
     mydb, mycursor = connect_database(my_dbase, "metminidbflux")
     #mydb, mycursor = connect_db.connect_database("metmini-mysql", "metminidb")
 
