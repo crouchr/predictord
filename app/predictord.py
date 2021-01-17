@@ -2,16 +2,12 @@
 # https://www.epochconverter.com/   - use this online tool to convert to/from epoch in a web service
 # timedatectl - run on CentOS7 to see UTC and local time and TZ settings
 
-from datetime import datetime
 import time
 import os
-
-# my modules from web.ermin
-import metfuncs
+import traceback
 
 import definitions
 import call_rest_api
-
 import ts_funcs
 import locations
 import julian
@@ -23,30 +19,13 @@ import dbase_funcs
 import gif_funcs
 import predictord_funcs
 
-#
-# FIXME : something is wrong here but go with it
-# use forecast_hour_utc = 10 to get it to work for now
-def calc_forecast_time_epoch(forecast_hour_utc):
-    """
-    Calculate UNIX epoch (UTC/GMT) for when forecast should be made - this is 09:00 UTC
-    :return:
-    """
-    utc_now = datetime.now()    # FIXME : should this be datetime.utcnow() ?
-    utc_now_epoch = int(utc_now.timestamp())
-
-    forecast_ts = utc_now.replace(hour=forecast_hour_utc, minute=0, second=0, microsecond=0)
-    forecast_ts_utc = int(forecast_ts.timestamp())
-
-    return forecast_ts_utc
-
-
 
 # ---------------------------------------------------
 
-def update_forecasts(julian_day, forecast_hour_utc, met_source, forecast_phase):
+
+def update_forecasts(julian_day, forecast_hour_utc, window_hours, met_source, forecast_phase):
     query = {}
     container_version = get_env.get_version()
-    window_hours = 3    # look at previous data for last window_hours hours
 
     try:
         for place in locations.locations:
@@ -117,24 +96,15 @@ def update_forecasts(julian_day, forecast_hour_utc, met_source, forecast_phase):
 
             # take picture of sky using webcam
             if place['location'] == 'Stockcross, UK':
-                # sky_picture_filename = webcam_capture.create_media_filename('image')
-                # flag = webcam_capture.take_picture(sky_picture_filename)
-                # print('sky_picture_filename=' + sky_picture_filename)
-
                 sky_video_filename = webcam_capture.create_media_filename('video')
                 flag = webcam_capture.take_video(sky_video_filename, video_length_secs=8)
                 print('sky_video_filename=' + sky_video_filename)
 
                 sky_video_filename = gif_funcs.convert_to_gif(sky_video_filename, "sky.gif")
-
-                # # Tweet the video
-                # tweet_text = 'testing from convert_video_to_gif'
-                # mytwython.send_tweet(tweet_text, hashtags=None, media_type='video', media_pathname=compressed_gif)
-
             else:
-                sky_video_filename="None"
+                sky_video_filename = "None"
 
-            dbase_funcs.add_forecast_to_db(julian_day, place['location'], lat, lon, pressure, ptrend, wind_deg, wind_quadrant, wind_strength, temp_avg, rain_avg, snow_avg, humidity_avg, dew_point_avg, slope, met_source, last_weather_description, last_record_id, hughes38_forecast_text, hughes38_forecast_id, zambretti_forecast_text, zambretti_forecast_id, metmini_forecast_text, metmini_forecast_id, api_forecast_text, last_record_timestamp, sky_video_filename, container_version)
+            dbase_funcs.add_forecast_to_db(julian_day, place['location'], lat, lon, pressure, ptrend, wind_deg, wind_quadrant, wind_strength, temp_avg, rain_avg, snow_avg, humidity_avg, dew_point_avg, slope, met_source, last_weather_description, last_record_id, hughes38_forecast_text, hughes38_forecast_id, zambretti_forecast_text, zambretti_forecast_id, metmini_forecast_text, metmini_forecast_id, api_forecast_text, last_record_timestamp, sky_video_filename, window_hours, container_version)
 
             # only Tweet out my local forecast "Stockcross, UK",
             # ["Stockcross, UK", "Lymington Harbour, UK", "Yarmouth Harbour, UK", "Cowes, UK", "Portsmouth, UK"]:
@@ -157,6 +127,7 @@ def update_forecasts(julian_day, forecast_hour_utc, met_source, forecast_phase):
 
     except Exception as e:
         print("update_forecasts() : error : " + e.__str__())
+        traceback.print_exc()
 
 
 def main():
@@ -164,15 +135,19 @@ def main():
         source = "OpenWeatherMap"   # the only source of weather info at the moment
         container_version = get_env.get_version()
 
+        # note earliest sunrise is Jun 21 4:43 AM in UK
+        window_hours = 3            # look at previous data for last window_hours hours : 3 works
+
         print('predictord started, container_version=' + container_version)
 
         forecast_tuples = predictord_funcs.calc_forecast_sequence(locations.locations)
-        #forecast_sequence = ['Now', 'Sunrise', 'Morning', 'Noon', 'Afternoon', 'Evening', 'Sunset']
 
         while True:
             for forecast_phase in forecast_tuples:
                 print("\n----------")
-                print(time.ctime() + ' forecast_phase=' + forecast_phase[1])
+                print(time.ctime() + ' forecast_phase=' + forecast_phase[1].__str__())
+
+                # comment this out when just want to run immediately
                 secs_to_wait, mins_to_wait, hours_to_wait = wait_time.calc_wait_time(forecast_phase[0])
                 print('sleeping for ' + secs_to_wait.__str__() + ' secs...')
                 print('sleeping for ' + mins_to_wait.__str__() + ' mins...')
@@ -184,13 +159,13 @@ def main():
                 utc_time_str = ts_funcs.epoch_to_utc(now_utc)
                 julian_day = julian.get_julian_date(utc_time_str)
                 now_utc_hour = utc_time_str.split(" ")[1]
-                #forecast_utc_hour = int(now_utc_hour.split(':')[0]) - 1
                 forecast_utc_hour = int(now_utc_hour.split(':')[0]) - 3
                 print('forecast_utc_hour = ' + forecast_utc_hour.__str__())
-                update_forecasts(julian_day, forecast_utc_hour, source, forecast_phase)
+                update_forecasts(julian_day, forecast_utc_hour, window_hours, source, forecast_phase[1])
 
     except Exception as e:
         print("main() : error : " + e.__str__())
+        traceback.print_exc()
 
 
 if __name__ == '__main__':

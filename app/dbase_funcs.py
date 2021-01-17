@@ -27,7 +27,7 @@ def connect_database(mysql_host, db_name):
 
 
 
-def add_forecast_to_db(julian_day, location, lat, lon, pressure, ptrend, wind_deg, wind_quadrant, wind_strength, temp_avg, rain_avg, snow_avg, humidity_avg, dew_point_avg, slope, met_source, last_weather_description, last_record_id, hughes38_forecast_text, hughes38_forecast_id, zambretti_forecast_text, zambretti_forecast_id, metmini_forecast_text, metmini_forecast_id, api_forecast_text, last_record_timestamp, sky_picture_filename, container_version):
+def add_forecast_to_db(julian_day, location, lat, lon, pressure, ptrend, wind_deg, wind_quadrant, wind_strength, temp_avg, rain_avg, snow_avg, humidity_avg, dew_point_avg, slope, met_source, last_weather_description, last_record_id, hughes38_forecast_text, hughes38_forecast_id, zambretti_forecast_text, zambretti_forecast_id, metmini_forecast_text, metmini_forecast_id, api_forecast_text, last_record_timestamp, sky_picture_filename, window_hours, container_version):
     """
     :param julian_day: When the forecast was made for
     :param pressure:
@@ -94,9 +94,10 @@ def add_forecast_to_db(julian_day, location, lat, lon, pressure, ptrend, wind_de
           "metmini_condition_code, " \
           "api_forecast_text, " \
           "api_condition_code, " \
+          "window_hours, " \
           "container_version" \
           ") " \
-          "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+          "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
     val = (ts_local,
            ts_utc,
@@ -132,6 +133,7 @@ def add_forecast_to_db(julian_day, location, lat, lon, pressure, ptrend, wind_de
            metmini_condition_code,
            api_forecast_text,
            api_condition_code,
+           window_hours,
            container_version
            )
 
@@ -171,7 +173,6 @@ def get_forecast_prereqs(location, julian_day, forecast_hour_utc, met_source, wi
         # recs_to_retrieve = 2
         # index = [1, 2]
 
-        my_dbase = "172.27.0.2"  # FIXME : 1 debugging only
         my_dbase = "192.168.1.180"
         mydb, mycursor = connect_database(my_dbase, "metminidb")
         # mydb, mycursor = connect_db.connect_database("metmini-mysql", "metminidb")
