@@ -32,7 +32,6 @@ def create_media_filename(media_type):
         filename = filename + '.avi'
         #filename = filename + '.mp4'
 
-
     return filename
 
 
@@ -55,8 +54,6 @@ def take_picture(image_filename):
     return True
 
 
-
-
 def take_video(video_filename, video_length_secs):
     print('Grabbing ' + video_length_secs.__str__() + ' seconds of video from webcam...')
     cam = cv2.VideoCapture(0)       # /dev/video0
@@ -71,7 +68,7 @@ def take_video(video_filename, video_length_secs):
     frames_captured = 0
     frames_to_capture = video_length_secs * 30   # 20 fps
 
-    while(cam.isOpened() and frames_captured < frames_to_capture):
+    while cam.isOpened() and frames_captured < frames_to_capture:
         ret, frame = cam.read()
         if ret:
             out.write(frame)
@@ -83,7 +80,6 @@ def take_video(video_filename, video_length_secs):
     print("Video {} written to disk".format(video_filename))
 
     cam.release()
-
     time.sleep(1)
 
     return True
@@ -96,4 +92,4 @@ if __name__ == '__main__' :
     media_filename = create_media_filename('video')
 
     media_filename = 'sky.avi'
-    flag = take_video(media_filename, video_length_secs=15)
+    flag = take_video(media_filename, video_length_secs=8)

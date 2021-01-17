@@ -23,7 +23,7 @@ import predictord_funcs
 # ---------------------------------------------------
 
 
-def update_forecasts(julian_day, forecast_hour_utc, window_hours, met_source, forecast_phase):
+def update_forecasts(julian_day, forecast_hour_utc, window_hours, met_source, forecast_phase, send_tweet=True):
     query = {}
     container_version = get_env.get_version()
 
@@ -99,8 +99,10 @@ def update_forecasts(julian_day, forecast_hour_utc, window_hours, met_source, fo
                 sky_video_filename = webcam_capture.create_media_filename('video')
                 flag = webcam_capture.take_video(sky_video_filename, video_length_secs=8)
                 print('sky_video_filename=' + sky_video_filename)
-
                 sky_video_filename = gif_funcs.convert_to_gif(sky_video_filename, "sky.gif")
+                status_code, response_dict = call_rest_api.call_rest_api(definitions.light_service_endpoint_base + '/get_lux', query)
+                lux = response_dict['lux']
+                sky_condition = response_dict['sky_condition']
             else:
                 sky_video_filename = "None"
 
@@ -114,14 +116,20 @@ def update_forecasts(julian_day, forecast_hour_utc, window_hours, met_source, fo
                     ', temp=' + temp_avg.__str__() + 'C' +\
                     ', wind=F' + wind_strength.__str__() +\
                     ', rain=' + rain_avg.__str__() + 'mm/hr' +\
-                    ', rec_id=' + last_record_id.__str__() + \
-                    ', slp=' + slope.__str__()
+                    ', rec_id=' + last_record_id.__str__() +\
+                    ', slp=' + slope.__str__() +\
+                    ', lux=' + lux.__str__() +\
+                    ', sky=' + sky_condition.__str__()
                     #', last_record_id=' + last_record_id.__str__()
                     #', condition_code=' + hughes38_forecast_id.__str__() + ', sender=mrdell'
                 tweet_location = place['location'].split(',')[0].lower()    # bug for lymington harbour and yarmouth harbour
-                tweet_truncated = tweet[0:250]
-                print('tweet length=' + len(tweet_truncated).__str__())
-                mytwython.send_tweet(tweet_truncated , hashtags=['metminiwx'], media_type='video', media_pathname=sky_video_filename)
+                if send_tweet:
+                    tweet_truncated = tweet[0:250]
+                    print('tweet length=' + len(tweet_truncated).__str__())
+                    mytwython.send_tweet(tweet_truncated , hashtags=['metminiwx'], media_type='video', media_pathname=sky_video_filename)
+                else:
+                    print('tweet=' + tweet)
+
                 print('update_forecasts() : sleeping for 120 seconds...')
                 time.sleep(120)       # rate-limit code': 326, 'message': 'To protect our users from spam and other malicious activity, this account is temporarily locked.
 
@@ -137,8 +145,10 @@ def main():
 
         # note earliest sunrise is Jun 21 4:43 AM in UK
         window_hours = 3            # look at previous data for last window_hours hours : 3 works
+        send_tweet = True           # sending tweets too often with video attachments can cause Twitter error ('spam')
 
         print('predictord started, container_version=' + container_version)
+        print('send_tweet=' + send_tweet.__str__())
 
         forecast_tuples = predictord_funcs.calc_forecast_sequence(locations.locations)
 
@@ -161,7 +171,7 @@ def main():
                 now_utc_hour = utc_time_str.split(" ")[1]
                 forecast_utc_hour = int(now_utc_hour.split(':')[0]) - 3
                 print('forecast_utc_hour = ' + forecast_utc_hour.__str__())
-                update_forecasts(julian_day, forecast_utc_hour, window_hours, source, forecast_phase[1])
+                update_forecasts(julian_day, forecast_utc_hour, window_hours, source, forecast_phase[1], send_tweet=send_tweet)
 
     except Exception as e:
         print("main() : error : " + e.__str__())
