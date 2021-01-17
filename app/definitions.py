@@ -8,3 +8,8 @@
 
 # Option2 - when using xw6600
 endpoint_base = 'http://localhost:9501'
+
+# for accessing sunrise/sunset external API
+metminimisc_service_listen_port = 9505
+#metminimisc_service_endpoint_base = 'http://127.0.0.1:' + listen_port.__str__()
+metminimisc_service_endpoint_base = 'http://192.168.1.180:' + metminimisc_service_listen_port.__str__()

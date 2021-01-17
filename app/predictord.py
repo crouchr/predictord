@@ -21,6 +21,7 @@ import wait_time
 import webcam_capture
 import dbase_funcs
 import gif_funcs
+import predictord_funcs
 
 #
 # FIXME : something is wrong here but go with it
@@ -164,14 +165,15 @@ def main():
         container_version = get_env.get_version()
 
         print('predictord started, container_version=' + container_version)
-        print("\n")         # force buffer flush ?
-        forecast_sequence = ['Now', 'Sunrise', 'Morning', 'Noon', 'Afternoon', 'Evening', 'Sunset']
+
+        forecast_tuples = predictord_funcs.calc_forecast_sequence(locations.locations)
+        #forecast_sequence = ['Now', 'Sunrise', 'Morning', 'Noon', 'Afternoon', 'Evening', 'Sunset']
 
         while True:
-            for forecast_phase in forecast_sequence:
+            for forecast_phase in forecast_tuples:
                 print("\n----------")
-                print(time.ctime() + ' forecast_phase=' + forecast_phase)
-                secs_to_wait, mins_to_wait, hours_to_wait = wait_time.calc_wait_time(forecast_phase)
+                print(time.ctime() + ' forecast_phase=' + forecast_phase[1])
+                secs_to_wait, mins_to_wait, hours_to_wait = wait_time.calc_wait_time(forecast_phase[0])
                 print('sleeping for ' + secs_to_wait.__str__() + ' secs...')
                 print('sleeping for ' + mins_to_wait.__str__() + ' mins...')
                 print('sleeping for ' + hours_to_wait.__str__() + ' hours...')
