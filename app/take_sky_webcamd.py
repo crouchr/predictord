@@ -27,22 +27,18 @@ def main():
             time.sleep(60)
             continue
 
-        # video of sky
-        # video_filename = "../videos/metminiwx_sky_video_" + time.ctime() + '.avi'
-        # video_filename = video_filename.replace('  ', ' ')
-        # video_filename = video_filename.replace(' ', '_')
-        # video_filename = video_filename.replace(':', '_')
-        video_filename = 'sky.avi'
         crf = 19        # H264 encoding quality parameter
-        flag, video_filename= webcam_capture.take_video(video_filename, crf=crf, video_length_secs=20)     # 10
+        # flag, video_filename_encoded = webcam_capture.take_video(crf=crf, video_length_secs=20)     # 10
+        flag, mp4_filename = webcam_capture.take_video(crf=10, video_length_secs=20)
+        print('wrote webcam video to : ' + mp4_filename)
 
         # Tweet the video
-        tweet_text = 'take_sky_webcam, lux=' + lux.__str__() + \
+        tweet_text = 'take_sky_webcamd, lux=' + lux.__str__() + \
             ', watts=' + watts.__str__() + \
             ', condition=' + sky_condition + \
             ', crf=' + crf.__str__()
 
-        mytwython.send_tweet(tweet_text, hashtags=None, media_type='video', media_pathname=video_filename)
+        mytwython.send_tweet(tweet_text, hashtags=None, media_type='video', media_pathname=mp4_filename)
 
         mins_between_videos = 15
         sleep_secs = mins_between_videos * 60
