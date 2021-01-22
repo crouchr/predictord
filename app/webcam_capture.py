@@ -13,6 +13,8 @@
 
 
 import time
+import os
+
 import cv2
 
 import video_compress_funcs
@@ -33,7 +35,7 @@ def create_media_filename(media_type):
     elif media_type == 'video':
         filename = filename + '.avi'
 
-    full_pathname = '/home/crouchr/metmini_media/' + filename
+    full_pathname = '/home/crouchr/metminiwx_media/' + filename
     full_pathname = full_pathname.lower()
 
     return full_pathname
@@ -88,7 +90,8 @@ def take_video(video_length_secs, crf=19):
     # convert avi to mp4/h264
     mp4_filename = video_compress_funcs.encode_to_mp4(video_filename, crf=crf)
 
-    print('simulate deletion of : ' + video_filename)
+    # remove the avi file
+    os.remove(video_filename)
 
     return True, mp4_filename
 
