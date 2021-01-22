@@ -18,12 +18,15 @@ def calc_forecast_sequence(locations_list):
 
     # sort based on values
     phases = {}
-    phases['morning'] = '09:00:00'      # pass through in func parameters
+
+    phases['sunrise'] = response_dict['sunrise']
+    #phases['sunrise'] = '08:45:00'         # FIXME : manual override on Jan 21
+
+    phases['morning'] = '09:00:00'          # This is optimal time for Zambretti forecast
+    phases['solar_noon'] = response_dict['solar_noon']
     phases['afternoon'] = '14:00:00'
     phases['evening'] = '20:00:00'
-    phases['sunrise'] = response_dict['sunrise']
     phases['sunset'] = response_dict['sunset']
-    phases['solar_noon'] = response_dict['solar_noon']
 
     sorted_phases_dict = dict(sorted(phases.items(), key=lambda item: item[1]))
     sorted_phases = [tuple(reversed(x)) for x in sorted_phases_dict.items()]

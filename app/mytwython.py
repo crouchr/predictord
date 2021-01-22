@@ -1,7 +1,9 @@
 # https://realpython.com/twitter-bot-python-tweepy/
 # Twitter API returned a 400 (Bad Request), Image file size must be <= 5242880 bytes
 import time
-from twython import Twython, TwythonError
+import traceback
+
+from twython import Twython, TwythonError   # 3.7.0
 
 # blackraintweets
 # ---------------
@@ -19,63 +21,63 @@ def send_tweet(tweet_text, hashtags=None, media_type=None, media_pathname=None):
     :param tweet:
     :return:
     """
-    hashtag_str = ''
+    try:
+        hashtag_str = ''
 
-    # Authenticate to Twitter
-    twitter = Twython(APP_KEY, APP_SECRET,
+        # Authenticate to Twitter
+        twitter = Twython(APP_KEY, APP_SECRET,
                       OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
 
-    # Create a tweet
-    ts = time.ctime()
-    tweet_full = ts + " : " + tweet_text
-    if hashtags:
-        for hashtag in hashtags:
-            hashtag_str += '#' + hashtag + ' '
-        #print(hashtag_str)
-        tweet_full = tweet_full + ' ' + hashtag_str
+        # Create a tweet
+        ts = time.ctime()
+        tweet_full = ts + " : " + tweet_text
+        if hashtags:
+            for hashtag in hashtags:
+                hashtag_str += '#' + hashtag + ' '
+            #print(hashtag_str)
+            tweet_full = tweet_full + ' ' + hashtag_str
 
-    # Send tweet
-    print('send_tweet() : ' + tweet_full)
-    # status = api.update_status(tweet_full, lat=lat, long=lon)
+        # Send tweet
+        print('send_tweet() : ' + tweet_full)
+        # status = api.update_status(tweet_full, lat=lat, long=lon)
 
-    # send Tweet
-    if media_type == "tweet":
-        pass
-    elif media_type == "video":
-        my_video = open(media_pathname, 'rb')
-        #response = twitter.upload_video(media=video, media_type='video/mp4')
-        #response = twitter.upload_video(media=video, media_type='video/mp4')
-        #mf = open(media_pathname, "rb")
-        response = twitter.upload_media(media=my_video)
-        mfid = []
-        mfid.append(response["media_id"])
-
-        try:
-            result=twitter.update_status(status=tweet_full, media_ids=mfid)
+        # send Tweet
+        if media_type == "tweet":
+            result=twitter.update_status(status=tweet_full)
             truncated = result['truncated']
-            print('tweet sent successfully, truncated=' + truncated.__str__())    # TODO : log to tweets dbase
-        except TwythonError as e:
-            print(e)
-    elif media_type == "image":
-        pass
+            print('tweet sent successfully, truncated=' + truncated.__str__())    # TODO : log to tweets dbas
+        elif media_type == "photo":
+            my_image = open(media_pathname, 'rb')
+            response = twitter.upload_video(media=my_image, media_type='photo')
+            twitter.update_status(status=tweet_full, media_ids=[response['media_id']])
+        elif media_type == "video":
+            my_video = open(media_pathname, 'rb')
+            response = twitter.upload_video(media=my_video, media_type='video/mp4')
+            twitter.update_status(status=tweet_full, media_ids=[response['media_id']])
+    except Exception as e:
+        traceback.print_exc()
 
     return
 
 
 # basic test script - not used otherwise
 def main():
+
     lat = 0.0
     lon = 1.0
 
-    #image_pathname = 'test_image.png'
-    #status = send_tweet(tweet, hashtags = None, image_pathname=image_pathname)
-    #print(status)
+    #print(twython.__version__)  # 3.7.0
     tweet_text = 'testing from mytwython.py'
-    media_type = 'video'
-    #media_pathname = 'beatles.gif'  # known good animated gif
 
-    media_pathname = 'sky-optimised.gif'
-    send_tweet(tweet_text, hashtags=None, media_type=media_type, media_pathname=media_pathname)
+    # Tweet an image
+    image_pathname = 'test_image.png'
+    media_type = 'photo'
+    send_tweet(tweet_text + ' - a photo', hashtags=None, media_type=media_type, media_pathname=image_pathname)
+
+    # Tweet a video
+    # media_pathname = 'sky.mp4'
+    # media_type = 'video'
+    # send_tweet(tweet_text + ' - a video', hashtags=None, media_type=media_type, media_pathname=media_pathname)
 
 
 if __name__ == '__main__':

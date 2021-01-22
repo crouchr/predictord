@@ -16,7 +16,6 @@ import mytwython
 import wait_time
 import webcam_capture
 import dbase_funcs
-import gif_funcs
 import predictord_funcs
 
 
@@ -97,16 +96,16 @@ def update_forecasts(julian_day, forecast_hour_utc, window_hours, met_source, fo
             # take picture of sky using webcam
             if place['location'] == 'Stockcross, UK':
                 sky_video_filename = webcam_capture.create_media_filename('video')
-                flag = webcam_capture.take_video(sky_video_filename, video_length_secs=8)
-                print('sky_video_filename=' + sky_video_filename)
-                sky_video_filename = gif_funcs.convert_to_gif(sky_video_filename, "sky.gif")
+                crf = 19
+                flag, sky_video_filename_mp4 = webcam_capture.take_video(sky_video_filename, crf=crf, video_length_secs=20)
+                print('sky_video_filename_mp4=' + sky_video_filename_mp4)
                 status_code, response_dict = call_rest_api.call_rest_api(definitions.light_service_endpoint_base + '/get_lux', query)
                 lux = response_dict['lux']
                 sky_condition = response_dict['sky_condition']
             else:
                 sky_video_filename = "None"
 
-            dbase_funcs.add_forecast_to_db(julian_day, place['location'], lat, lon, pressure, ptrend, wind_deg, wind_quadrant, wind_strength, temp_avg, rain_avg, snow_avg, humidity_avg, dew_point_avg, slope, met_source, last_weather_description, last_record_id, hughes38_forecast_text, hughes38_forecast_id, zambretti_forecast_text, zambretti_forecast_id, metmini_forecast_text, metmini_forecast_id, api_forecast_text, last_record_timestamp, sky_video_filename, window_hours, container_version)
+            dbase_funcs.add_forecast_to_db(julian_day, place['location'], lat, lon, pressure, ptrend, wind_deg, wind_quadrant, wind_strength, temp_avg, rain_avg, snow_avg, humidity_avg, dew_point_avg, slope, met_source, last_weather_description, last_record_id, hughes38_forecast_text, hughes38_forecast_id, zambretti_forecast_text, zambretti_forecast_id, metmini_forecast_text, metmini_forecast_id, api_forecast_text, last_record_timestamp, sky_video_filename_mp4, window_hours, container_version)
 
             # only Tweet out my local forecast "Stockcross, UK",
             # ["Stockcross, UK", "Lymington Harbour, UK", "Yarmouth Harbour, UK", "Cowes, UK", "Portsmouth, UK"]:
