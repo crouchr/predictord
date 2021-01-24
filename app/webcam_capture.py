@@ -91,7 +91,7 @@ def take_video(video_length_secs, crf=19):
     mp4_filename = video_compress_funcs.encode_to_mp4(video_filename, crf=crf)
 
     # remove the avi file
-    os.remove(video_filename)
+    # os.remove(video_filename)
 
     return True, mp4_filename
 

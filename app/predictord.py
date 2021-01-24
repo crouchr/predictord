@@ -97,7 +97,7 @@ def update_forecasts(julian_day, forecast_hour_utc, window_hours, met_source, fo
             if place['location'] == 'Stockcross, UK':
                 sky_video_filename = webcam_capture.create_media_filename('video')
                 crf = 19
-                flag, sky_video_filename_mp4 = webcam_capture.take_video(sky_video_filename, crf=crf, video_length_secs=20)
+                flag, sky_video_filename_mp4 = webcam_capture.take_video(crf=crf, video_length_secs=20)
                 print('sky_video_filename_mp4=' + sky_video_filename_mp4)
                 status_code, response_dict = call_rest_api.call_rest_api(definitions.light_service_endpoint_base + '/get_lux', query)
                 lux = response_dict['lux']
